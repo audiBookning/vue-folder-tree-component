@@ -14,9 +14,11 @@ I changed many things, so there should be little comparison (unless it is the in
 
 This repo is a vue project with an included example of the changes. So it will be easy to check how to use it.
 
+Added basic drag and drop.
+
 ## Todo
 
 - Really needs cleanup. A lot of it.
 
-- Also needs everything else.
+- Also needs everything else since "completed project" is absolutely not a correct label for this.
 

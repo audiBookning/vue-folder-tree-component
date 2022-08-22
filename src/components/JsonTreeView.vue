@@ -39,16 +39,16 @@ const props = defineProps({
   },
 });
 
-const counter = useTreeStore();
+const treeStore = useTreeStore();
 
 // set state
-counter.arrayKey = props.arrayKey;
-counter.rootKey = props.rootKey;
-counter.maxDepth = props.maxDepth;
-counter.colorScheme = props.colorScheme;
+treeStore.arrayKey = props.arrayKey;
+treeStore.rootKey = props.rootKey;
+treeStore.maxDepth = props.maxDepth;
+treeStore.colorScheme = props.colorScheme;
 
 // set root data
-if (props.data && props.rootNode) counter.setRoot(props.data, props.rootNode);
+if (props.data && props.rootNode) treeStore.setRoot(props.data, props.rootNode);
 
 const emit = defineEmits(["selected", "toggleOpen"]);
 

@@ -1,17 +1,6 @@
 import { defineStore } from 'pinia';
-import { then, when } from 'switch-ts';
 
 import { ItemData, ItemData2, ItemType, ValueTypes } from '../types';
-
-interface StoreState {
-  root: ItemData | null;
-  json: string;
-  arrayKey?: string;
-  folderFlag?: boolean;
-  rootKey: string;
-  maxDepth?: number;
-  colorScheme?: string;
-}
 
 export interface TreeData {
   [key: string]: ItemData2;
@@ -19,7 +8,7 @@ export interface TreeData {
 
 interface StoreState2 {
   rootNode: string;
-  root: TreeData | {};
+  root: TreeData | null;
   json: string;
   arrayKey?: string;
   folderFlag?: boolean;
@@ -28,10 +17,12 @@ interface StoreState2 {
   colorScheme?: string;
 }
 
+export type KeyTree = keyof TreeData;
+
 export const useTreeStore = defineStore("treeStoreId", {
   state: (): StoreState2 => ({
     rootNode: "",
-    root: {},
+    root: null,
     json: "",
     arrayKey: "index",
     folderFlag: false,
@@ -62,9 +53,25 @@ export const useTreeStore = defineStore("treeStoreId", {
   },
 
   actions: {
-    getNodeById(id: keyof TreeData) {
-      if (id in this.root) {
-        // @ts-ignore
+    setParentByChildId(childId: string, newParentId: KeyTree) {
+      if (this.root !== null) {
+        const temp = this.root;
+        const parentId = Object.keys(temp).find((key) => {
+          return temp[key].children?.includes(childId);
+        });
+
+        if (parentId && temp[newParentId] !== undefined) {
+          const tempParent = temp[newParentId];
+          temp[parentId].children = temp[parentId].children?.filter(
+            (c) => c !== childId
+          );
+          temp[newParentId].children?.push(childId);
+        }
+      }
+    },
+    getNodeById(id: KeyTree) {
+      if (this.root !== null && id in this.root) {
+        const temp = this.root;
         return this.root[id] as ItemData2;
       }
     },
@@ -72,18 +79,20 @@ export const useTreeStore = defineStore("treeStoreId", {
       this.rootNode = rootN;
       this.root = treeD;
     },
+    // TODO: Not completed
     setJson(json: string | undefined) {
       const hh = this;
-      if (json != null && json != undefined) {
+      if (this.root !== null && json != null && json != undefined) {
         this.json = json;
         const data = JSON.parse(json);
         const parsed = build(this.rootKey, { ...data }, 0, "", true);
-        this.root = parsed;
+        // this.root = parsed;
       }
     },
   },
 });
 
+// TODO: To be deleted. Just kept temporarly for reference
 function build(
   key: string,
   value: ValueTypes,

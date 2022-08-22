@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, onBeforeMount, ref } from "vue";
+import { computed, reactive } from "vue";
 import { then, when } from "switch-ts";
 import {
   ItemData,
@@ -8,7 +8,7 @@ import {
   ItemType,
   ItemData2,
 } from "../types";
-import { TreeData, useTreeStore } from "../store/treeStore";
+import { useTreeStore } from "../store/treeStore";
 
 // NOTE: Vue cannot use type interfaces in defineProps
 // if they are in an imported file...
@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<ItemProps>(), {
   folder: false,
 });
 
-const counter = useTreeStore();
+const treeStore = useTreeStore();
 
 const emit = defineEmits(["selected", "toggleOpen"]);
 
@@ -36,12 +36,13 @@ function toggleOpen(): void {
   state.open = !state.open;
   if (
     treeNode.value &&
-    counter.getNodeType(props.nodeKey) === ItemType.OBJECT
+    treeStore.getNodeType(props.nodeKey) === ItemType.OBJECT
   ) {
     emit("toggleOpen", {
       key: treeNode.value.key,
       value: treeNode.value.value,
       children: treeNode.value.children,
+      // TODO:
       //path: treeNode.value.path,
       path: "",
     } as SelectedData);
@@ -53,6 +54,7 @@ function onClick(data: string): void {
     emit("selected", {
       key: treeNode.value.key,
       value: treeNode.value.value,
+      // TODO:
       //path: data.path,
       path: "",
     } as SelectedData);
@@ -118,7 +120,7 @@ const valueClasses = computed((): unknown => {
 });
 
 const treeNode = computed(() => {
-  let node = counter.getNodeById(props.nodeKey);
+  let node = treeStore.getNodeById(props.nodeKey);
   if (props.nodeKey) return node;
 });
 
@@ -126,7 +128,7 @@ const lengthString = computed((): string => {
   if (treeNode.value) {
     let length = Object.keys(treeNode.value)?.length || 0;
 
-    if (counter.getNodeType(props.nodeKey) === ItemType.ARRAY) {
+    if (treeStore.getNodeType(props.nodeKey) === ItemType.ARRAY) {
       return length === 1 ? `${length} element` : `${length} elements`;
     }
     return length === 1 ? `${length} property` : `${length} properties`;
@@ -148,13 +150,63 @@ const nodeProperties = computed((): string[] => {
   return [];
 });
 
-const dataType = computed((): ItemType => counter.getNodeType(props.nodeKey));
+const dataType = computed((): ItemType => treeStore.getNodeType(props.nodeKey));
+
+/* 
+  Drag and drop
+*/
+const allowDropJJ = (evt: DragEvent) => {
+  evt.preventDefault();
+
+  return true;
+};
+
+function dragStrt(evt: DragEvent) {
+  if (evt.dataTransfer && treeNode.value)
+    evt.dataTransfer.setData("text", treeNode.value.key);
+
+  return true;
+}
+
+function dropEv(evt: DragEvent) {
+  evt.preventDefault();
+  if (evt.dataTransfer && treeNode.value) {
+    var data = evt.dataTransfer.getData("text");
+    treeStore.setParentByChildId(data, treeNode.value.key);
+  }
+}
+
+function drag(e: DragEvent) {
+  //
+}
+
+function dragEnter(e: DragEvent) {
+  //
+}
+
+function dragLeave(e: DragEvent) {
+  //
+}
+function dragEnd(e: DragEvent) {
+  //
+  return;
+}
+
 //
 </script>
 
-<!-- v-if="treeNode?.children && treeNode?.children?.length > 0" -->
 <template>
-  <div class="json-view-item">
+  <div
+    class="json-view-item"
+    draggable="true"
+    @drag.stop="drag"
+    @dragstart.stop="dragStrt($event)"
+    @dragover.stop="allowDropJJ($event)"
+    @dragenter.stop="dragEnter"
+    @dragleave.stop="dragLeave"
+    @drop.stop="dropEv($event)"
+    @dragend.stop="dragEnd"
+  >
     <div v-if="treeNode">
       <span v-if="!propertyKey">
         <button
@@ -172,6 +224,7 @@ const dataType = computed((): ItemType => counter.getNodeType(props.nodeKey));
         <span
           v-if="state.open && treeNode?.children"
           v-for="child in treeNode?.children"
+          :key="child"
         >
           <JsonTreeViewItem
             :nodeKey="child"
