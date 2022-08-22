@@ -49,17 +49,17 @@ useTreeStore().$onAction(
     switch (name) {
       case "setToggleItem":
         after((_result) => {
-          console.log(`setToggleItem to: ${args}.`);
+          console.log(`Toggled Item: ${args}.`);
         });
         break;
       case "setSelectedItem":
         after((_result) => {
-          console.log(`setSelectedItem to: ${args}.`);
+          console.log(`Selected Item: ${args}.`);
         });
         break;
       case "setDraggedItem":
         after((_result) => {
-          console.log(`setDraggedItem child ${args[0]} to: ${args[1]}.`);
+          console.log(`Dragged Item ${args[0]} to ${args[1]}.`);
         });
         break;
       default:
@@ -74,12 +74,7 @@ useTreeStore().$onAction(
 
 <template>
   <div class="theme-light">
-    <JsonTreeView
-      rootKey="root"
-      colorScheme="light"
-      :data="obj"
-      rootNode="node1"
-    />
+    <JsonTreeView colorScheme="light" :data="obj" rootNode="node1" />
   </div>
   <!-- <div class="theme-dark">
     <JsonTreeView

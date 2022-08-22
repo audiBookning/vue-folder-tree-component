@@ -10,7 +10,6 @@ interface StoreState2 {
   rootNode: string;
   root: TreeData | null;
   json: string;
-  rootKey: string;
   colorScheme?: string;
   // events
   selectedItem?: string | null;
@@ -29,9 +28,9 @@ export const useTreeStore = defineStore("treeStoreId", {
     rootNode: "",
     root: null,
     json: "",
-    rootKey: "/",
     colorScheme: "light",
     // events
+    // NOTE: is there a need to have state for this? Won't the actions suffice?
     selectedItem: null,
     toggleItem: null,
     draggedItem: null,
@@ -106,14 +105,14 @@ export const useTreeStore = defineStore("treeStoreId", {
       if (this.root !== null && json != null && json != undefined) {
         this.json = json;
         const data = JSON.parse(json);
-        const parsed = build(this.rootKey, { ...data }, 0, "", true);
+        //const parsed = build(this.rootKey, { ...data }, 0, "", true);
         // this.root = parsed;
       }
     },
   },
 });
 
-// TODO: To be deleted. Just kept temporarly for reference
+// TODO: To be deleted. Just kept temporarly for future reference
 function build(
   key: string,
   value: ValueTypes,

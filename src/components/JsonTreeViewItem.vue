@@ -10,7 +10,6 @@ import { KeyItem, useTreeStore } from "../store/treeStore";
 export interface ItemProps {
   nodeKey: string;
   canSelect?: boolean;
-  propertyKey?: string;
 }
 
 const props = withDefaults(defineProps<ItemProps>(), {
@@ -108,17 +107,14 @@ const lengthString = computed((): string => {
   return "";
 });
 
-const dataValue = computed((): string => {
-  if (treeNode.value)
-    return treeNode.value.value === undefined
-      ? "undefined"
-      : JSON.stringify(treeNode.value.value);
-  return "";
-});
-
 const nodeProperties = computed((): string[] => {
-  if (treeNode.value?.children && treeNode.value?.children.length < 1)
-    return Object.keys(treeNode.value);
+  if (treeNode.value) {
+    const nodeKeys = Object.keys(treeNode.value).filter(
+      (key) => key !== "children"
+    );
+    return nodeKeys;
+  }
+
   return [];
 });
 
@@ -179,27 +175,17 @@ function dragEnd(e: DragEvent) {
     @dragend.stop="dragEnd"
   >
     <div v-if="treeNode">
-      <span v-if="!propertyKey">
-        <button
-          class="data-key"
-          :aria-expanded="state.open ? 'true' : 'false'"
-          @click.stop="toggleItem"
-        >
-          <div :class="classes"></div>
-          <span class="material-symbols-outlined"> {{ googleIcon }} </span>
+      <button
+        class="data-key"
+        :aria-expanded="state.open ? 'true' : 'false'"
+        @click.stop="toggleItem"
+      >
+        <div :class="classes"></div>
+        <span class="material-symbols-outlined"> {{ googleIcon }} </span>
 
-          {{ treeNode?.key }} :
-          <span class="properties">{{ lengthString }}</span>
-        </button>
-
-        <span
-          v-if="state.open && treeNode?.children"
-          v-for="child in treeNode?.children"
-          :key="child"
-        >
-          <JsonTreeViewItem :nodeKey="child" :canSelect="canSelect" />
-        </span>
-      </span>
+        {{ treeNode?.key }} :
+        <span class="properties">{{ lengthString }}</span>
+      </button>
       <span
         v-if="state.open && nodeProperties.length > 0"
         class="value-key properties"
@@ -218,6 +204,15 @@ function dragEnd(e: DragEvent) {
             {{ treeNode[childKey as keyof ItemData2] }}
           </span>
         </div>
+      </span>
+      <span v-if="treeNode?.children">
+        <span
+          v-if="state.open"
+          v-for="child in treeNode?.children"
+          :key="child"
+        >
+          <JsonTreeViewItem :nodeKey="child" :canSelect="canSelect" />
+        </span>
       </span>
     </div>
   </div>

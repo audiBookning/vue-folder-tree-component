@@ -9,16 +9,11 @@ import { useTreeStore, TreeData } from "../store/treeStore";
 const props = defineProps({
   data: {
     type: Object as PropType<TreeData>,
-    required: false,
+    required: true,
   },
   rootNode: {
     type: String,
     required: true,
-  },
-  rootKey: {
-    type: String,
-    required: false,
-    default: "/",
   },
   colorScheme: {
     type: String,
@@ -31,12 +26,11 @@ const props = defineProps({
 const treeStore = useTreeStore();
 
 // set state
-
-treeStore.rootKey = props.rootKey;
 treeStore.colorScheme = props.colorScheme;
 
 // set root data
 if (props.data && props.rootNode) treeStore.setRoot(props.data, props.rootNode);
+//
 </script>
 
 <template>
