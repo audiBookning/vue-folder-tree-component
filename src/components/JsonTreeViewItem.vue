@@ -9,13 +9,9 @@ import { KeyItem, useTreeStore } from "../store/treeStore";
 // NOTE: the interface marks the not required property with ?
 export interface ItemProps {
   nodeKey: string;
-  canSelect?: boolean;
 }
 
-const props = withDefaults(defineProps<ItemProps>(), {
-  canSelect: false,
-  folder: false,
-});
+const props = withDefaults(defineProps<ItemProps>(), {});
 
 const treeStore = useTreeStore();
 
@@ -86,7 +82,6 @@ const googleIcon = computed((): unknown => {
 const valueClasses = computed((): unknown => {
   return {
     "value-key": true,
-    "can-select": props.canSelect,
   };
 });
 
@@ -95,14 +90,14 @@ const treeNode = computed(() => {
   if (props.nodeKey) return node;
 });
 
-const lengthString = computed((): string => {
-  if (treeNode.value) {
-    let length = Object.keys(treeNode.value)?.length || 0;
-
-    if (treeStore.getNodeType(props.nodeKey) === ItemType.ARRAY) {
-      return length === 1 ? `${length} element` : `${length} elements`;
-    }
-    return length === 1 ? `${length} property` : `${length} properties`;
+const lengthchilds = computed((): string => {
+  if (
+    treeNode.value &&
+    treeNode.value.children &&
+    treeNode.value.children.length > 0
+  ) {
+    let length = treeNode.value.children.length;
+    return length === 1 ? `${length} item` : `${length} items`;
   }
   return "";
 });
@@ -184,17 +179,12 @@ function dragEnd(e: DragEvent) {
         <span class="material-symbols-outlined"> {{ googleIcon }} </span>
 
         {{ treeNode?.key }} :
-        <span class="properties">{{ lengthString }}</span>
+        <span class="properties">{{ lengthchilds }}</span>
       </button>
-      <span
-        v-if="state.open && nodeProperties.length > 0"
-        class="value-key properties"
-      >
+      <span v-if="state.open && nodeProperties.length > 0" class="properties">
         <div
           v-for="childKey in nodeProperties"
           :class="valueClasses"
-          :role="canSelect ? 'button' : undefined"
-          :tabindex="canSelect ? '0' : undefined"
           @click="onClick"
           @keyup.enter="onClick"
           @keyup.space="onClick"
@@ -211,7 +201,7 @@ function dragEnd(e: DragEvent) {
           v-for="child in treeNode?.children"
           :key="child"
         >
-          <JsonTreeViewItem :nodeKey="child" :canSelect="canSelect" />
+          <JsonTreeViewItem :nodeKey="child" />
         </span>
       </span>
     </div>
@@ -229,14 +219,13 @@ function dragEnd(e: DragEvent) {
   border-radius: 2px;
   white-space: nowrap;
   padding: 5px 5px 5px 10px;
-  &.can-select {
-    cursor: pointer;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
-    &:focus {
-      outline: 2px solid var(--jtv-hover-color);
-    }
+
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+  &:focus {
+    outline: 2px solid var(--jtv-hover-color);
   }
 }
 .data-key {
