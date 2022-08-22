@@ -3,15 +3,7 @@ import { reactive } from "vue";
 import { JsonTreeView } from "./components";
 import { TreeData } from "./store/treeStore";
 import { ItemData } from "./types";
-
-/* const obj2 = {
-  string: "text",
-  number: 123,
-  boolean: true,
-  array1: [{ nodeId: "value1" }, { nodeId: "value2" }, { nodeId: "value3" }],
-  array2: ["A", "B", "C"],
-  object: { prop1: "value1", nestedObject: { prop2: "value2" } },
-}; */
+import { useTreeStore } from "./store/treeStore";
 
 const obj: TreeData = {
   node1: {
@@ -45,6 +37,39 @@ function onSelected(event: unknown) {
 function toggleSelected(event: Partial<ItemData>) {
   console.log(event);
 }
+
+useTreeStore().$onAction(
+  ({
+    name, // name of the action
+    store, // store instance, same as `someStore`
+    args, // array of parameters passed to the action
+    after, // hook after the action returns or resolves
+    onError, // hook if the action throws or rejects
+  }) => {
+    switch (name) {
+      case "setToggleItem":
+        after((_result) => {
+          console.log(`setToggleItem to: ${args}.`);
+        });
+        break;
+      case "setSelectedItem":
+        after((_result) => {
+          console.log(`setSelectedItem to: ${args}.`);
+        });
+        break;
+      case "setDraggedItem":
+        after((_result) => {
+          console.log(`setDraggedItem child ${args[0]} to: ${args[1]}.`);
+        });
+        break;
+      default:
+        break;
+    }
+
+    // this will trigger if the action succeeds and after it has fully run.
+    // it waits for any returned promised
+  }
+);
 </script>
 
 <template>
@@ -52,23 +77,17 @@ function toggleSelected(event: Partial<ItemData>) {
     <JsonTreeView
       rootKey="root"
       colorScheme="light"
-      arrayKey="nodeId"
       :data="obj"
       rootNode="node1"
-      :maxDepth="2"
-      @selected="onSelected"
-      @toggleOpen="toggleSelected"
     />
   </div>
-  <div class="theme-dark">
+  <!-- <div class="theme-dark">
     <JsonTreeView
       colorScheme="dark"
       :data="obj"
       rootNode="node1"
-      @selected="onSelected"
-      @toggleOpen="toggleSelected"
     />
-  </div>
+  </div> -->
 </template>
 
 <style lang="scss" scoped>

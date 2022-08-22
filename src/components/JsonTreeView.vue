@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, PropType } from "vue";
+import { PropType } from "vue";
 
 import JsonTreeViewItem from "./JsonTreeViewItem.vue";
 import { useTreeStore, TreeData } from "../store/treeStore";
-import { ItemData } from "../types";
 
 // NOTE: Vue cannot use type interfaces in defineProps
 // and also have the validator...
@@ -16,20 +15,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  arrayKey: {
-    type: String,
-    required: false,
-    default: "index",
-  },
   rootKey: {
     type: String,
     required: false,
     default: "/",
-  },
-  maxDepth: {
-    type: Number,
-    required: false,
-    default: 1,
   },
   colorScheme: {
     type: String,
@@ -42,22 +31,12 @@ const props = defineProps({
 const treeStore = useTreeStore();
 
 // set state
-treeStore.arrayKey = props.arrayKey;
+
 treeStore.rootKey = props.rootKey;
-treeStore.maxDepth = props.maxDepth;
 treeStore.colorScheme = props.colorScheme;
 
 // set root data
 if (props.data && props.rootNode) treeStore.setRoot(props.data, props.rootNode);
-
-const emit = defineEmits(["selected", "toggleOpen"]);
-
-const itemSelected = (data: unknown): void => {
-  emit("selected", data);
-};
-const openSelected = (data: Partial<ItemData>): void => {
-  emit("toggleOpen", data);
-};
 </script>
 
 <template>
@@ -65,8 +44,6 @@ const openSelected = (data: Partial<ItemData>): void => {
     <JsonTreeViewItem
       :class="[{ 'root-item': true, dark: colorScheme === 'dark' }]"
       :nodeKey="rootNode"
-      @selected="itemSelected"
-      @toggleOpen="openSelected"
     />
   </div>
 </template>

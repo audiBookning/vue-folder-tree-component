@@ -10,11 +10,15 @@ interface StoreState2 {
   rootNode: string;
   root: TreeData | null;
   json: string;
-  arrayKey?: string;
-  folderFlag?: boolean;
   rootKey: string;
-  maxDepth?: number;
   colorScheme?: string;
+  // events
+  selectedItem?: string | null;
+  toggleItem?: string | null;
+  draggedItem?: {
+    childId: string;
+    parentId: string;
+  } | null;
 }
 
 export type KeyTree = keyof TreeData;
@@ -25,11 +29,12 @@ export const useTreeStore = defineStore("treeStoreId", {
     rootNode: "",
     root: null,
     json: "",
-    arrayKey: "index",
-    folderFlag: false,
     rootKey: "/",
-    maxDepth: 1,
     colorScheme: "light",
+    // events
+    selectedItem: null,
+    toggleItem: null,
+    draggedItem: null,
   }),
   getters: {
     getNodeType: (state) => {
@@ -54,6 +59,21 @@ export const useTreeStore = defineStore("treeStoreId", {
   },
 
   actions: {
+    setToggleItem(nodeId: string) {
+      if (this.root !== null) {
+        this.toggleItem = nodeId;
+      }
+    },
+    setSelectedItem(nodeId: string) {
+      if (this.root !== null) {
+        this.selectedItem = nodeId;
+      }
+    },
+    setDraggedItem(childId: string, parentId: string) {
+      if (this.root !== null) {
+        this.draggedItem = { childId, parentId };
+      }
+    },
     setParentByChildId(childId: string, newParentId: KeyTree) {
       if (this.root !== null) {
         const temp = this.root;
@@ -99,33 +119,9 @@ function build(
   value: ValueTypes,
   depth: number,
   path: string,
-  includeKey: boolean,
-  arrayKeyArg: string = "index"
+  includeKey: boolean
 ): ItemData {
   if (value instanceof Object) {
-    if (value instanceof Array) {
-      const arrayKey: boolean =
-        arrayKeyArg !== undefined || arrayKeyArg !== "index";
-
-      const children = value.map((element, index) =>
-        build(
-          arrayKey && element[arrayKeyArg] ? arrayKeyArg : index.toString(),
-          element,
-          depth + 1,
-          includeKey ? `${path}${key}[${index}].` : `${path}`,
-          false
-        )
-      );
-      return {
-        key,
-        type: ItemType.ARRAY,
-        depth,
-        path,
-        length: children.length,
-        children,
-      };
-    }
-
     const children = Object.entries(value).map(([childKey, childValue]) =>
       build(
         childKey,

@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive } from "vue";
 import { then, when } from "switch-ts";
-import {
-  ItemData,
-  SelectedData,
-  ValueTypes,
-  ItemType,
-  ItemData2,
-} from "../types";
+import { ItemType, ItemData2 } from "../types";
 import { KeyItem, useTreeStore } from "../store/treeStore";
 
 // NOTE: Vue cannot use type interfaces in defineProps
@@ -26,47 +20,23 @@ const props = withDefaults(defineProps<ItemProps>(), {
 
 const treeStore = useTreeStore();
 
-const emit = defineEmits(["selected", "toggleOpen"]);
-
 const state = reactive({
   open: false,
 });
 
-function toggleOpen(): void {
+function toggleItem(data: MouseEvent): void {
+  treeStore.setToggleItem(props.nodeKey);
   state.open = !state.open;
   if (
     treeNode.value &&
     treeStore.getNodeType(props.nodeKey) === ItemType.OBJECT
   ) {
-    emit("toggleOpen", {
-      key: treeNode.value.key,
-      value: treeNode.value.value,
-      children: treeNode.value.children,
-      // TODO:
-      //path: treeNode.value.path,
-      path: "",
-    } as SelectedData);
   }
 }
 
-function onClick(data: string): void {
-  if (treeNode.value)
-    emit("selected", {
-      key: treeNode.value.key,
-      value: treeNode.value.value,
-      // TODO:
-      //path: data.path,
-      path: "",
-    } as SelectedData);
+function onClick(): void {
+  treeStore.setSelectedItem(props.nodeKey);
 }
-
-function bubbleSelected(data: Partial<ItemData>): void {
-  emit("selected", data);
-}
-
-const openSelected = (data: Partial<ItemData>): void => {
-  emit("toggleOpen", data);
-};
 
 function getValueColor(keyValue: KeyItem) {
   if (treeNode.value) {
@@ -152,12 +122,10 @@ const nodeProperties = computed((): string[] => {
   return [];
 });
 
-const dataType = computed((): ItemType => treeStore.getNodeType(props.nodeKey));
-
 /* 
   Drag and drop
 */
-const allowDropJJ = (evt: DragEvent) => {
+const allowDrop = (evt: DragEvent) => {
   evt.preventDefault();
 
   return true;
@@ -175,6 +143,7 @@ function dropEv(evt: DragEvent) {
   if (evt.dataTransfer && treeNode.value) {
     var data = evt.dataTransfer.getData("text");
     treeStore.setParentByChildId(data, treeNode.value.key);
+    treeStore.setDraggedItem(data, treeNode.value.key);
   }
 }
 
@@ -203,7 +172,7 @@ function dragEnd(e: DragEvent) {
     draggable="true"
     @drag.stop="drag"
     @dragstart.stop="dragStrt($event)"
-    @dragover.stop="allowDropJJ($event)"
+    @dragover.stop="allowDrop($event)"
     @dragenter.stop="dragEnter"
     @dragleave.stop="dragLeave"
     @drop.stop="dropEv($event)"
@@ -214,12 +183,12 @@ function dragEnd(e: DragEvent) {
         <button
           class="data-key"
           :aria-expanded="state.open ? 'true' : 'false'"
-          @click.stop="toggleOpen()"
+          @click.stop="toggleItem"
         >
           <div :class="classes"></div>
-          <span class="material-symbols-outlined">{{ googleIcon }}</span>
+          <span class="material-symbols-outlined"> {{ googleIcon }} </span>
 
-          {{ treeNode?.key }}:
+          {{ treeNode?.key }} :
           <span class="properties">{{ lengthString }}</span>
         </button>
 
@@ -228,12 +197,7 @@ function dragEnd(e: DragEvent) {
           v-for="child in treeNode?.children"
           :key="child"
         >
-          <JsonTreeViewItem
-            :nodeKey="child"
-            :canSelect="canSelect"
-            @selected="bubbleSelected"
-            @toggleOpen="openSelected"
-          />
+          <JsonTreeViewItem :nodeKey="child" :canSelect="canSelect" />
         </span>
       </span>
       <span
@@ -245,9 +209,9 @@ function dragEnd(e: DragEvent) {
           :class="valueClasses"
           :role="canSelect ? 'button' : undefined"
           :tabindex="canSelect ? '0' : undefined"
-          @click="onClick(nodeKey)"
-          @keyup.enter="onClick(nodeKey)"
-          @keyup.space="onClick(nodeKey)"
+          @click="onClick"
+          @keyup.enter="onClick"
+          @keyup.space="onClick"
         >
           <span class="value-key">{{ childKey }}:</span>
           <span :style="{ color: getValueColor(childKey as KeyItem) }">
