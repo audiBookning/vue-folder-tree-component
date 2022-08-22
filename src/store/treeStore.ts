@@ -18,6 +18,7 @@ interface StoreState2 {
 }
 
 export type KeyTree = keyof TreeData;
+export type KeyItem = keyof ItemData2;
 
 export const useTreeStore = defineStore("treeStoreId", {
   state: (): StoreState2 => ({
@@ -105,6 +106,7 @@ function build(
     if (value instanceof Array) {
       const arrayKey: boolean =
         arrayKeyArg !== undefined || arrayKeyArg !== "index";
+
       const children = value.map((element, index) =>
         build(
           arrayKey && element[arrayKeyArg] ? arrayKeyArg : index.toString(),

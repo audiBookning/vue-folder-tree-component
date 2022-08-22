@@ -8,7 +8,7 @@ import {
   ItemType,
   ItemData2,
 } from "../types";
-import { useTreeStore } from "../store/treeStore";
+import { KeyItem, useTreeStore } from "../store/treeStore";
 
 // NOTE: Vue cannot use type interfaces in defineProps
 // if they are in an imported file...
@@ -68,15 +68,17 @@ const openSelected = (data: Partial<ItemData>): void => {
   emit("toggleOpen", data);
 };
 
-function getValueColor(value: ValueTypes): string {
-  return when(typeof value)
-    .is((v) => v === "string", then("var(--jtv-string-color)"))
-    .is((v) => v === "number", then("var(--jtv-number-color)"))
-    .is((v) => v === "bigint", then("var(--jtv-number-color)"))
-    .is((v) => v === "boolean", then("var(--jtv-boolean-color)"))
-    .is((v) => v === "object", then("var(--jtv-null-color)"))
-    .is((v) => v === "undefined", then("var(--jtv-null-color)"))
-    .default(then("var(--jtv-valueKey-color)"));
+function getValueColor(keyValue: KeyItem) {
+  if (treeNode.value) {
+    return when(typeof treeNode.value[keyValue])
+      .is((v) => v === "string", then("var(--jtv-string-color)"))
+      .is((v) => v === "number", then("var(--jtv-number-color)"))
+      .is((v) => v === "bigint", then("var(--jtv-number-color)"))
+      .is((v) => v === "boolean", then("var(--jtv-boolean-color)"))
+      .is((v) => v === "object", then("var(--jtv-null-color)"))
+      .is((v) => v === "undefined", then("var(--jtv-null-color)"))
+      .default(then("var(--jtv-valueKey-color)"));
+  }
 }
 
 const classes = computed((): unknown => {
@@ -233,34 +235,25 @@ function dragEnd(e: DragEvent) {
             @toggleOpen="openSelected"
           />
         </span>
-        <span v-if="state.open && nodeProperties.length > 0">
-          <span v-for="childKey in nodeProperties">
-            <JsonTreeViewItem
-              :nodeKey="nodeKey"
-              :propertyKey="childKey"
-              :canSelect="canSelect"
-              @selected="bubbleSelected"
-              @toggleOpen="openSelected"
-            />
+      </span>
+      <span
+        v-if="state.open && nodeProperties.length > 0"
+        class="value-key properties"
+      >
+        <div
+          v-for="childKey in nodeProperties"
+          :class="valueClasses"
+          :role="canSelect ? 'button' : undefined"
+          :tabindex="canSelect ? '0' : undefined"
+          @click="onClick(nodeKey)"
+          @keyup.enter="onClick(nodeKey)"
+          @keyup.space="onClick(nodeKey)"
+        >
+          <span class="value-key">{{ childKey }}:</span>
+          <span :style="{ color: getValueColor(childKey as KeyItem) }">
+            {{ treeNode[childKey as keyof ItemData2] }}
           </span>
-        </span>
-      </span>
-      <span v-else class="data-key properties">
-        {{ propertyKey }}: {{ treeNode[propertyKey as keyof ItemData2] }}
-      </span>
-    </div>
-    <div
-      v-if="dataType === ItemType.VALUE"
-      :class="valueClasses"
-      :role="canSelect ? 'button' : undefined"
-      :tabindex="canSelect ? '0' : undefined"
-      @click="onClick(nodeKey)"
-      @keyup.enter="onClick(nodeKey)"
-      @keyup.space="onClick(nodeKey)"
-    >
-      <span class="value-key">{{ treeNode?.key }}:</span>
-      <span :style="{ color: getValueColor(treeNode?.value) }">
-        {{ dataValue }}
+        </div>
       </span>
     </div>
   </div>

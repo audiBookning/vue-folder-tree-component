@@ -25,6 +25,7 @@ export type ItemData2 = {
   key: string;
   length?: number;
   isFolder?: boolean;
+  boolValue?: boolean;
   children?: string[];
   value?: ValueTypes;
 };

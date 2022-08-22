@@ -31,7 +31,7 @@ const obj: TreeData = {
     children: ["node5"],
   },
   node4: { key: "node4", value: "lorem", children: [] },
-  node5: { key: "node5", value: "lorem", children: [] },
+  node5: { key: "node5", value: "lorem", boolValue: true, children: [] },
   node6: { key: "node6", value: "lorem", children: [] },
   node7: { key: "node7", value: "lorem", children: [] },
 };
