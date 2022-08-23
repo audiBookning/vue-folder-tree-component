@@ -13,16 +13,6 @@ export enum ItemType {
 
 export type ItemData = {
   key: string;
-  type: ItemType;
-  path: string;
-  depth: number;
-  length?: number;
-  children?: ItemData[];
-  value?: ValueTypes;
-};
-
-export type ItemData2 = {
-  key: string;
   length?: number;
   isFolder?: boolean;
   boolValue?: boolean;
@@ -37,3 +27,24 @@ export type ValueTypes =
   | bigint
   | boolean
   | undefined;
+
+export interface TreeData {
+  [key: string]: ItemData;
+}
+
+export interface StoreState {
+  rootNode: string;
+  root: TreeData;
+  json: string;
+  colorScheme?: string;
+  // events
+  selectedItem?: string | null;
+  toggleItem?: string | null;
+  draggedItem?: {
+    childId: string;
+    parentId: string;
+  } | null;
+}
+
+export type KeyTree = keyof TreeData;
+export type KeyItem = keyof ItemData;

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive } from "vue";
 import { then, when } from "switch-ts";
-import { ItemType, ItemData2 } from "../types";
-import { KeyItem, useTreeStore } from "../store/treeStore";
+import { ItemData, KeyItem } from "./types";
+import { useTreeStore } from "./store/treeStore";
 
 // NOTE: Vue cannot use type interfaces in defineProps
 // if they are in an imported file...
@@ -22,11 +22,6 @@ const state = reactive({
 function toggleItem(data: MouseEvent): void {
   treeStore.setToggleItem(props.nodeKey);
   state.open = !state.open;
-  if (
-    treeNode.value &&
-    treeStore.getNodeType(props.nodeKey) === ItemType.OBJECT
-  ) {
-  }
 }
 
 function onClick(): void {
@@ -79,15 +74,9 @@ const googleIcon = computed((): unknown => {
       .default(then("var(--jtv-valueKey-color)"));
 });
 
-const valueClasses = computed((): unknown => {
-  return {
-    "value-key": true,
-  };
-});
-
 const treeNode = computed(() => {
   let node = treeStore.getNodeById(props.nodeKey);
-  if (props.nodeKey) return node;
+  return node;
 });
 
 const lengthchilds = computed((): string => {
@@ -159,7 +148,7 @@ function dragEnd(e: DragEvent) {
 
 <template>
   <div
-    class="json-view-item"
+    class="view-item"
     draggable="true"
     @drag.stop="drag"
     @dragstart.stop="dragStrt($event)"
@@ -184,14 +173,14 @@ function dragEnd(e: DragEvent) {
       <span v-if="state.open && nodeProperties.length > 0" class="properties">
         <div
           v-for="childKey in nodeProperties"
-          :class="valueClasses"
+          class="value-key"
           @click="onClick"
           @keyup.enter="onClick"
           @keyup.space="onClick"
         >
           <span class="value-key">{{ childKey }}:</span>
           <span :style="{ color: getValueColor(childKey as KeyItem) }">
-            {{ treeNode[childKey as keyof ItemData2] }}
+            {{ treeNode[childKey as keyof ItemData] }}
           </span>
         </div>
       </span>
@@ -209,7 +198,7 @@ function dragEnd(e: DragEvent) {
 </template>
 
 <style lang="scss">
-.json-view-item:not(.root-item) {
+.view-item:not(.root-item) {
   margin-left: 15px;
 }
 .value-key {

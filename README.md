@@ -4,7 +4,6 @@ Inspired of [json-tree-view-vue3](https://github.com/seijikohara/json-tree-view-
 
 There is no "UI effort" here, so don't expext anything usable. It was created to try to learn about Vue and for a very specific case: visualizing a certain type of AST' like object structure.
 
-
 There is no intention in turning this in a maintained project. Anyone is welcome to copy or fork it to do whatever they want. Just remember to aknowledge the original author of json-tree-view-vue3.
 
 ## Changes
@@ -21,7 +20,9 @@ I added a central store, because the original library wasn't really prepared to 
 
 - Another reason for not using Pinia stores in a library is that it cannot import a store by its id at runtime. So there will need to be a unconfortable coupling between the app and the 3 party library.
 
-- One could add it with dynamic imports, but that would bring other concerns. See for example [get store by id](https://github.com/vuejs/pinia/discussions/753#discussioncomment-1553093)
+- Or just use pinia internatlly as a local dependency without care dor anything else...
+
+- One could add it with dynamic imports, that could give some intresting options (...), but that would also bring other concerns. See for example [get store by id](https://github.com/vuejs/pinia/discussions/753#discussioncomment-1553093)
 
 ## Todo
 

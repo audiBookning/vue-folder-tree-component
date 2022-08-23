@@ -2,7 +2,8 @@
 import { PropType } from "vue";
 
 import JsonTreeViewItem from "./JsonTreeViewItem.vue";
-import { useTreeStore, TreeData } from "../store/treeStore";
+import { useTreeStore } from "./store/treeStore";
+import { TreeData } from "./types";
 
 // NOTE: Vue cannot use type interfaces in defineProps
 // and also have the validator...
@@ -29,12 +30,13 @@ const treeStore = useTreeStore();
 treeStore.colorScheme = props.colorScheme;
 
 // set root data
-if (props.data && props.rootNode) treeStore.setRoot(props.data, props.rootNode);
+treeStore.setRoot(props.data, props.rootNode);
+
 //
 </script>
 
 <template>
-  <div v-if="rootNode">
+  <div v-if="rootNode" :class="`theme-${colorScheme}`">
     <JsonTreeViewItem
       :class="[{ 'root-item': true, dark: colorScheme === 'dark' }]"
       :nodeKey="rootNode"
@@ -43,6 +45,17 @@ if (props.data && props.rootNode) treeStore.setRoot(props.data, props.rootNode);
 </template>
 
 <style lang="scss" scoped>
+@import "./../../public/fonts/fonts.css";
+
+// Theme
+.theme-light {
+  background-color: #ffffff;
+}
+.theme-dark {
+  background-color: #000000;
+}
+
+// Items
 .root-item {
   --jtv-key-color: #0977e6;
   --jtv-valueKey-color: #073642;

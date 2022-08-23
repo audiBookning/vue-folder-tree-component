@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { reactive } from "vue";
-import { JsonTreeView } from "./components";
-import { TreeData } from "./store/treeStore";
-import { ItemData } from "./types";
-import { useTreeStore } from "./store/treeStore";
+import { JsonTreeView, TreeData, useTreeStore } from "./components";
 
 const obj: TreeData = {
   node1: {
@@ -30,13 +27,6 @@ const obj: TreeData = {
 const state = reactive({
   json: JSON.stringify(obj),
 });
-
-function onSelected(event: unknown) {
-  console.log(event);
-}
-function toggleSelected(event: Partial<ItemData>) {
-  console.log(event);
-}
 
 useTreeStore().$onAction(
   ({
@@ -65,33 +55,14 @@ useTreeStore().$onAction(
       default:
         break;
     }
-
-    // this will trigger if the action succeeds and after it has fully run.
-    // it waits for any returned promised
   }
 );
 </script>
 
 <template>
-  <div class="theme-light">
-    <JsonTreeView colorScheme="light" :data="obj" rootNode="node1" />
+  <div>
+    <JsonTreeView colorScheme="dark" :data="obj" rootNode="node1" />
   </div>
-  <!-- <div class="theme-dark">
-    <JsonTreeView
-      colorScheme="dark"
-      :data="obj"
-      rootNode="node1"
-    />
-  </div> -->
 </template>
 
-<style lang="scss" scoped>
-@import "./../public/fonts/fonts.css";
-//
-.theme-light {
-  background-color: #ffffff;
-}
-.theme-dark {
-  background-color: #000000;
-}
-</style>
+<style lang="scss" scoped></style>
