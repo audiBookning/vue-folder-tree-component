@@ -27,7 +27,7 @@ const props = defineProps({
 const treeStore = useTreeStore();
 
 // set state
-treeStore.colorScheme = props.colorScheme;
+treeStore.setTheme(props.colorScheme);
 
 // set root data
 treeStore.setRoot(props.data, props.rootNode);
@@ -39,7 +39,7 @@ treeStore.setRoot(props.data, props.rootNode);
   <div v-if="rootNode" :class="`theme-${colorScheme}`">
     <JsonTreeViewItem
       :class="[{ 'root-item': true, dark: colorScheme === 'dark' }]"
-      :nodeKey="rootNode"
+      :node-key="rootNode"
     />
   </div>
 </template>

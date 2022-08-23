@@ -72,6 +72,8 @@ const googleIcon = computed((): unknown => {
         then("description")
       )
       .default(then("var(--jtv-valueKey-color)"));
+
+  return "";
 });
 
 const treeNode = computed(() => {
@@ -173,6 +175,7 @@ function dragEnd(e: DragEvent) {
       <span v-if="state.open && nodeProperties.length > 0" class="properties">
         <div
           v-for="childKey in nodeProperties"
+          :key="childKey"
           class="value-key"
           @click="onClick"
           @keyup.enter="onClick"
@@ -184,13 +187,9 @@ function dragEnd(e: DragEvent) {
           </span>
         </div>
       </span>
-      <span v-if="treeNode?.children">
-        <span
-          v-if="state.open"
-          v-for="child in treeNode?.children"
-          :key="child"
-        >
-          <JsonTreeViewItem :nodeKey="child" />
+      <span v-if="state.open && treeNode?.children">
+        <span v-for="child in treeNode?.children" :key="child">
+          <JsonTreeViewItem :node-key="child" />
         </span>
       </span>
     </div>

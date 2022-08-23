@@ -17,6 +17,11 @@ export const useTreeStore = defineStore("treeStoreId", {
   getters: {},
 
   actions: {
+    setTheme(colorScheme: string): void {
+      //
+      this.colorScheme = colorScheme;
+    },
+    // Events
     setToggleItem(nodeId: string) {
       this.toggleItem = nodeId;
     },
